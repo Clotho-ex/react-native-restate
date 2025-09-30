@@ -57,7 +57,7 @@ const Profile = () => {
     const result = await logout();
     if (result) {
       Alert.alert("Logout successful");
-      refetch({}); 
+      refetch({});
     } else {
       Alert.alert("Logout failed");
     }

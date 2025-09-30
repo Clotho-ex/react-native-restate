@@ -1,0 +1,18 @@
+export default {
+  calendar: "calendar-outline",
+  wallet: "wallet-outline",
+  person: "account-outline",
+  bell: "bell-outline",
+  shield: "shield-check-outline",
+  language: "translate",
+  info: "information-outline",
+  people: "account-group-outline",
+  laundry: "washing-machine",
+  carPark: "car",
+  run: "run",
+  cutlery: "silverware-fork-knife",
+  dumbell: "dumbbell",
+  swim: "pool",
+  wifi: "wifi",
+  dog: "dog",
+};

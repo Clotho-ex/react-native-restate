@@ -1,11 +1,33 @@
 import { makeRedirectUri } from "expo-auth-session";
 import * as WebBrowser from "expo-web-browser";
-import { Account, Avatars, Client, OAuthProvider } from "react-native-appwrite";
+import {
+  Account,
+  Avatars,
+  Client,
+  Databases,
+  Models,
+  OAuthProvider,
+  Query,
+} from "react-native-appwrite";
+
+export interface Property extends Models.Document {
+  image: string;
+  rating: number;
+  name: string;
+  address: string;
+  price: number;
+}
 
 export const appwriteConfig = {
   platform: "com.clotho.restate",
   endpoint: process.env.EXPO_PUBLIC_APPWRITE_ENDPOINT,
   projectId: process.env.EXPO_PUBLIC_APPWRITE_PROJECT_ID,
+  databaseId: process.env.EXPO_PUBLIC_APPWRITE_DATABASE_ID,
+  galleryCollectionId: process.env.EXPO_PUBLIC_APPWRITE_GALLERIES_COLLECTION_ID,
+  reviewsCollectionId: process.env.EXPO_PUBLIC_APPWRITE_REVIEWS_COLLECTION_ID,
+  agentsCollectionId: process.env.EXPO_PUBLIC_APPWRITE_AGENTS_COLLECTION_ID,
+  propertiesCollectionId:
+    process.env.EXPO_PUBLIC_APPWRITE_PROPERTIES_COLLECTION_ID,
 };
 
 export const client = new Client();
@@ -16,6 +38,7 @@ client.setPlatform(appwriteConfig.platform);
 
 export const avatar = new Avatars(client);
 export const account = new Account(client);
+export const databases = new Databases(client);
 
 export async function login() {
   try {
@@ -93,5 +116,57 @@ export async function getCurrentUser() {
   } catch (error) {
     console.error(error);
     return null;
+  }
+}
+
+export async function getProperties(): Promise<Property[]> {
+  try {
+    const response = await databases.listDocuments(
+      appwriteConfig.databaseId!,
+      appwriteConfig.propertiesCollectionId!,
+      [Query.orderDesc("$createdAt"), Query.limit(5)],
+    );
+    return response.documents as unknown as Property[];
+  } catch (error) {
+    console.error(error);
+    return [];
+  }
+}
+
+export async function getProperty({
+  filter,
+  query,
+  limit = 10,
+}: {
+  filter?: string;
+  query?: string;
+  limit?: number;
+} = {}): Promise<Property[]> {
+  try {
+    const buildQuery = [Query.orderDesc("$createdAt"), Query.limit(limit)];
+
+    if (filter && filter.toLowerCase() !== "all") {
+      buildQuery.push(Query.equal("type", filter.toLowerCase()));
+    }
+
+    if (query && query.trim()) {
+      buildQuery.push(
+        Query.or([
+          Query.search("name", query),
+          Query.search("address", query),
+          Query.search("type", query),
+        ]),
+      );
+    }
+
+    const response = await databases.listDocuments(
+      appwriteConfig.databaseId!,
+      appwriteConfig.propertiesCollectionId!,
+      buildQuery,
+    );
+    return response.documents as unknown as Property[];
+  } catch (error) {
+    console.error(error);
+    return [];
   }
 }

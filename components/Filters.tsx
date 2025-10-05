@@ -1,20 +1,28 @@
 import { categories } from "@/constants/data";
 import { router, useLocalSearchParams } from "expo-router";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Pressable, ScrollView, Text } from "react-native";
 
 const Filters = () => {
   const params = useLocalSearchParams<{ filter?: string }>();
   const [selectedFilter, setSelectedFilter] = useState(params.filter || "All");
 
-  const handleFilterPress = (filter: string) => {
-    if (selectedFilter === filter) {
+  useEffect(() => {
+    const category = params.filter || "All";
+    const matchingItem = categories.find(
+      (item) => item.category.toLowerCase() === category.toLowerCase(),
+    );
+    setSelectedFilter(matchingItem ? matchingItem.title : "All");
+  }, [params.filter]);
+
+  const handleFilterPress = (category: string, title: string) => {
+    if (selectedFilter === title) {
       setSelectedFilter("All");
       router.setParams({ filter: "All" });
       return;
     }
-    setSelectedFilter(filter);
-    router.setParams({ filter });
+    setSelectedFilter(title);
+    router.setParams({ filter: category });
   };
 
   return (
@@ -23,16 +31,16 @@ const Filters = () => {
       showsHorizontalScrollIndicator={false}
       className="mb-2 mt-3"
     >
-      {categories.map((category) => (
+      {categories.map((item, index) => (
         <Pressable
-          key={category.title}
-          onPress={() => handleFilterPress(category.title)}
-          className={`mr-4 flex flex-col items-start rounded-full px-4 py-2 ${selectedFilter === category.title ? "bg-primary-300" : "bg-primary-200"} active:opacity-40`}
+          key={index}
+          onPress={() => handleFilterPress(item.category, item.title)}
+          className={`mr-4 flex flex-col items-start rounded-full px-4 py-2 ${selectedFilter === item.title ? "bg-primary-300" : "bg-primary-200"} active:opacity-40`}
         >
           <Text
-            className={`font-rubik-medium text-base ${selectedFilter === category.title ? "text-white" : "font-rubik-regular text-black-300"}`}
+            className={`font-rubik-medium text-base ${selectedFilter === item.title ? "text-white" : "font-rubik-regular text-black-300"}`}
           >
-            {category.title}
+            {item.title}
           </Text>
         </Pressable>
       ))}

@@ -124,15 +124,11 @@ export const facilities = [
     icon: icons.dumbell,
   },
   {
-    title: "Swimming pool",
-    icon: icons.swim,
-  },
-  {
-    title: "Wifi",
+    title: "WI-FI",
     icon: icons.wifi,
   },
   {
-    title: "Pet Center",
+    title: "Pet-Friendly",
     icon: icons.dog,
   },
 ];
